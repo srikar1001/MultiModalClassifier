@@ -1,5 +1,6 @@
 import tensorflow as tf
 from datetime import datetime
+import math
 
 TAG_learningrate='Custom learning rate'
 
@@ -15,6 +16,8 @@ def build_learning_rate(name):
         return tf.keras.callbacks.LearningRateScheduler(fixedlearningratefn, verbose=0)
     elif name == 'warmupexpdecay':
         return tf.keras.callbacks.LearningRateScheduler(warmupexpdecaylrfn, verbose=0)
+    elif name == 'expdecay':
+        return tf.keras.callbacks.LearningRateScheduler(expdecaylrfn, verbose=0)
 
 def fixedlearningratefn(epoch):
     #Inside the learning rate function, use tf.summary.scalar() to log the custom learning rate.
@@ -52,3 +55,9 @@ def warmupexpdecaylrfn(epoch):
         tf.summary.scalar(TAG_learningrate, data=lr, step=epoch)
         return lr
     return lr(epoch, start_lr, min_lr, max_lr, rampup_epochs, sustain_epochs, exp_decay)
+
+def expdecaylrfn(epoch):
+    start_lr=0.001
+    k=0.1
+    lr= start_lr*math.exp(-k*epoch)
+    return lr

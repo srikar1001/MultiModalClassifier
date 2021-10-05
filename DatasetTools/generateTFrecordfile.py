@@ -146,5 +146,5 @@ def main(Path, PATH_OUTPUT='./outputs/TFrecord/', SHARDS = 16):
             print("Wrote file {} containing {} records".format(filename, shard_size))
 
 if __name__ == '__main__':
-    Path='/home/lkk/.keras/datasets/flower_photos'
+    Path='/home/srikar/.keras/datasets/flower_photos'
     main(Path)

@@ -34,7 +34,7 @@ def create_simplemodel1(numclasses, img_shape, metrics=['accuracy']):
     ])
 
     model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),#integer label not one-hot encoding
-                    optimizer=tf.keras.optimizers.Adam(),
+                    optimizer=tf.keras.optimizers.Adadelta(),
                     metrics=metrics)
     return model
 

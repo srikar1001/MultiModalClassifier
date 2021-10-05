@@ -12,7 +12,7 @@ from TFClassifier.Datasetutil.TFdatasetutil import loadTFdataset #loadtfds, load
 from TFClassifier.myTFmodels.CNNsimplemodels import createCNNsimplemodel
 from TFClassifier.Datasetutil.Visutil import plot25images, plot9imagesfromtfdataset, plot_history
 from TFClassifier.myTFmodels.optimizer_factory import build_learning_rate, setupTensorboardWriterforLR
-
+#from tf.optimizers import Adadelta
 model = None 
 # import logger
 
@@ -34,7 +34,7 @@ parser.add_argument('--model_name', default='xceptionmodel1', choices=['cnnsimpl
                     help='the network')
 parser.add_argument('--arch', default='Tensorflow', choices=['Tensorflow', 'Pytorch'],
                     help='Model Name, default: Tensorflow.')
-parser.add_argument('--learningratename', default='warmupexpdecay', choices=['fixedstep', 'fixed', 'warmupexpdecay'],
+parser.add_argument('--learningratename', default='warmupexpdecay', choices=['fixedstep', 'fixed', 'warmupexpdecay','expdecay'],
                     help='path to save the model')
 parser.add_argument('--batchsize', type=int, default=32,
                     help='batch size')
@@ -52,11 +52,12 @@ args = parser.parse_args()
 
 
 # Callback for printing the LR at the end of each epoch.
+lr_arr=[]
 class PrintLR(tf.keras.callbacks.Callback):
   def on_epoch_end(self, epoch, logs=None):
     print('\nLearning rate for epoch {} is {}'.format(epoch + 1,
                                                       model.optimizer.lr.numpy()))
-
+    lr_arr.append(model.optimizer.lr.numpy())
 
 def main():
     print("Tensorflow Version: ", tf.__version__)
@@ -130,7 +131,9 @@ def main():
         model = createCNNsimplemodel(args.model_name, numclasses, imageshape, metrics)
     #model = create_model(strategy,numclasses, metricname)
     model.summary()
-
+  #  if(args.learningratename=="Adadelta"):
+ #       print("Adadelta optimizer")
+#        model.compile(loss=tf.keras.losses.categorical_crossentropy,optimizer=tf.keras.optimizers.Adadelta(lr=0.01, epsilon=1e-08, decay=0.0),metrics=['accuracy'])
     # Define the checkpoint directory to store the checkpoints
     checkpoint_dir = args.save_path #'./training_checkpoints'
     # Name of the checkpoint files
@@ -163,7 +166,11 @@ def main():
     print("TRAINING TIME: ", time.time() - start_time, " sec")
 
     plot_history(history, metricname, valmetricname, args.save_path)
-
+   # plt.plot(history.history['accuracy'])
+    #plt.ylabel('learning rate')
+   # plt.xlabel('epoch')
+    #plt.plot(lr_arr)
+    plt.savefig(args.learningratename+'1'+'.png')
     #Export the graph and the variables to the platform-agnostic SavedModel format. After your model is saved, you can load it with or without the scope.
     model.save(args.save_path, save_format='tf')
 
